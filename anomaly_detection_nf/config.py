@@ -17,7 +17,7 @@ DEFAULTS = {
     "optuna_direction": "minimize",
 
     # ---- Operating mode ----
-    "mode": "train",                    # train or eval or optuna
+    "mode": "eval",                    # train or eval or optuna
     "checkpoint": "/home/cblasco/thesis/anomaly_detection_nf/checkpoints",
     "model_name": "autoregressive_ns.pt",
     "signal_plots": False,
