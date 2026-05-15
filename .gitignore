@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+
+# Logs
+logs/
+*.log
+
+# Model checkpoints / outputs / logs
+checkpoints/
+results/
+plots/
+metrics/
+logs/
+
+# Data
+data/
+
+# System files
+.DS_Store
+
+# Extra test
+/NF
