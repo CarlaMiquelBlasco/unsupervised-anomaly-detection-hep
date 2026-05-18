@@ -103,9 +103,9 @@ def evaluate_vae_nf(
     test_df["score"] = scores_bkg
     sig_df["score"]  = scores_sig
 
-    # --------------------------------------------------
-    # Metrics (IDENTICAL LOGIC TO NF)
-    # --------------------------------------------------
+    # ----------
+    # Metrics 
+    # ----------
     asimov = compute_asimov_significance(test_df, sig_df, score_col="score")
     asimov_thr = asimov["threshold"]
 
@@ -124,7 +124,7 @@ def evaluate_vae_nf(
         threshold=asimov_thr,
     )
 
-    # Tail scan (same as NF)
+    # Tail scan
     tail_percentiles = [85, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
     tail_results = []
 
@@ -173,9 +173,9 @@ def evaluate_vae_nf(
         print(f"[Saved] Global metrics → {global_path}")
         print(f"[Saved] Tail metrics → {tail_path}")
 
-    # --------------------------------------------------
-    # Return dictionary (NF-compatible)
-    # --------------------------------------------------
+    # ------------------
+    # Return dictionary 
+    # ------------------
     return {
         # global metrics
         "AUROC": auroc,

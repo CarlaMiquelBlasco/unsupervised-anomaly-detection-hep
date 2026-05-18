@@ -7,7 +7,7 @@ import torch
 DEFAULTS = {
     # ---- Training settings ----
     "lr": 1e-3,
-    "epochs": 2,
+    "epochs": 300,
     "batch_size": 512,
     "early_stop_patience": 10,
 
@@ -32,7 +32,7 @@ DEFAULTS = {
 
     # ---- Signal selection ----
     "signal": "all", # all or specific signal
-    "tag": "autoregressive_ns",
+    "tag": "autoregressive_ns", # autoregressive_ns | coupling_affine | coupling_ns
 
     # ---- Data path ----
     "data_path": "/home/cblasco/thesis/data/2tau_full_additional_variables_cleaned.csv",

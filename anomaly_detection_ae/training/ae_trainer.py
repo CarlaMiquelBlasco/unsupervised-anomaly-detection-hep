@@ -1,9 +1,4 @@
 # --- training/ae_trainer.py ---
-"""
-Training utilities for standard autoencoder (AE), including:
-- train_ae
-- mixed_recon_loss
-"""
 import torch
 import torch.nn.functional as F
 

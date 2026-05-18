@@ -5,6 +5,7 @@ import gc
 import json
 import optuna
 import torch
+import shutil
 
 from models.vae import Encoder, Decoder
 from models.latent_flow import build_latent_flow
@@ -23,7 +24,6 @@ def _set_seed(seed: int):
     torch.cuda.manual_seed_all(seed)
 
 
-# inside training/vae_nf_optuna.py
 
 def _objective_factory(
     *,
@@ -38,7 +38,7 @@ def _objective_factory(
 ):
     def objective(trial):
         # -----------------------------
-        # sample hyperparameters (NO FLOW)
+        # sample hyperparameters
         # -----------------------------
         lr = trial.suggest_float("lr", 1e-4, 3e-3, log=True)
         weight_decay = trial.suggest_float("weight_decay", 1e-6, 5e-3, log=True)
@@ -62,13 +62,8 @@ def _objective_factory(
         vae_config["decoder_hidden"] = [int(dec_h1), int(dec_h2)]
         vae_config["beta"] = float(beta)
 
-        # -----------------------------
-        # FIX FLOW: force RealNVP
-        # -----------------------------
         flow_config = copy.deepcopy(base_flow_config)
-        flow_config["flow_type"] = "affine_coupling"  # <-- RealNVP
-        # keep other keys as-is (hidden_features, num_layers, etc.)
-        # and do NOT sample them with optuna
+        flow_config["flow_type"] = "affine_coupling" 
 
         # build model
         encoder = Encoder(
@@ -159,7 +154,6 @@ def run_optuna_vae_nf(
     meta_vars,
     args,
 ):
-    import optuna
 
     _set_seed(int(args.optuna_seed))
 
@@ -227,7 +221,6 @@ def run_optuna_vae_nf(
         dst = os.path.join(dst_dir, f"{args.optuna_study_name}_best.pt")
 
         if os.path.exists(src):
-            import shutil
             shutil.copy2(src, dst)
 
     # print summary

@@ -179,7 +179,6 @@ print("===========================================================\n")
 # =====================================================
 df = pd.read_csv(args.data_path)
 
-# Important: avoid silent empty selections if pandas infers int/object differently
 df["signalOrigin"] = df["signalOrigin"].astype(str)
 
 bkgs = df[df["signalOrigin"] == "-999"].reset_index(drop=True)
@@ -302,7 +301,7 @@ else:
 # =====================================================
 # Important:
 # - train / optuna: normalize here, then create dataloaders.
-# - eval: do NOT normalize here, because evaluate_vae_nf.py already normalizes
+# - eval: NOT normalized here, because evaluate_vae_nf.py already normalizes
 #         using the checkpoint normalization.
 # =====================================================
 norm_stats = None
@@ -458,8 +457,6 @@ elif mode == "eval":
     if not os.path.exists(checkpoint_file):
         raise FileNotFoundError(f"[ERROR] No checkpoint found at {checkpoint_file}")
 
-    # Load checkpoint only for printing summary here.
-    # evaluate_vae_nf() will load it again internally.
     ckpt = torch.load(checkpoint_file, map_location=DEVICE)
 
     vae_config = ckpt["vae_config"]
@@ -606,8 +603,6 @@ elif mode == "eval":
                 out_path=os.path.join(plot_dir, "latent_zk_bkg_vs_sig.png"),
             )
 
-            # Safer labels than using test_meta["class"] directly.
-            # This guarantees label length matches latent array length.
             plotter.plot_tsne_latent(
                 z=np.concatenate([results["zk_bkg"], results["zk_sig"]]),
                 labels=np.concatenate([

@@ -42,10 +42,7 @@ def run_inference_vae_nf(model, dataloader, device="cuda", return_numpy=True, sc
                 score = reco + kl
 
             elif score_type == "loglik_zk":
-                # Score purely based on density in latent space (assuming the model provides a consistent log-determinant).
-                # Idea: higher anomaly score = -log p(zk) (less probable latent points are more anomalous).
-                # For this, we need log p(zk). If the flow provides it directly, that’s ideal.
-                # Since the forward pass returns the log-determinant, the safest option is to query the flow for log_prob(zk).
+                # Score purely based on density in latent space.
                 log_pzk = model.flow.log_prob(zk)
                 score = -log_pzk
             else:

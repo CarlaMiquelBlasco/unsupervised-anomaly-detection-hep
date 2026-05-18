@@ -32,19 +32,6 @@ def compute_asimov_significance(
 ):
     """Compute Asimov Z, with optional exposure rescale and nicer plotting."""
 
-    # clean: drop non-positive weights
-    #bkg = bkg[bkg[wcol]>0].copy()
-    #sig = sig[sig[wcol]>0].copy()
-
-    # rescale signals to test exposure
-    #if exposure_scale != 1.0:
-    #    sig[wcol] *= exposure_scale
-    #    print(f"[SIG] applied exposure_scale={exposure_scale:.3f}")
-
-    # optional clipping for threshold calc
-    def maybe_clip(df, lo, hi): 
-        return df.assign(**{score_col: np.clip(df[score_col], lo, hi)})
-
     # threshold at bg_survival
     thr = weighted_quantile(bkg[score_col], 1-bg_survival, bkg[wcol])
 

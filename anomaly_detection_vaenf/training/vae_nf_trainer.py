@@ -8,9 +8,9 @@ from torch.nn.utils import clip_grad_norm_
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
-# ============================================================
-# Checkpoint saving (unchanged logic, with clear print)
-# ============================================================
+# =================
+# Checkpoint saving
+# =================
 def save_full_checkpoint_vae_nf(
     *,
     model,
@@ -116,8 +116,7 @@ def train_vae_nf(
     args=None,
 ):
     """
-    Train VAE+NF with ELBO-style loss:
-        L_i = reconstruction_i + beta * KL_i
+    Train VAE+NF
 
     Includes:
       - numerical sanity checks
@@ -125,7 +124,6 @@ def train_vae_nf(
       - gradient health checks
       - LR scheduling
       - early stopping
-      - NF-style logging
     """
 
     # ---------------- sanity checks on inputs ----------------
@@ -186,7 +184,7 @@ def train_vae_nf(
             optimizer.zero_grad(set_to_none=True)
 
             # ---------------- forward ----------------
-            x_hat, kl = model(x)           # kl: [B]
+            x_hat, kl = model(x)  
             reco = ((x - x_hat) ** 2).sum(dim=1)
 
             # sanity: forward pass
@@ -294,9 +292,9 @@ def train_vae_nf(
                 f"KL: {kl_sum/n_batches:.3f}"
             )
 
-    # ========================================================
-    # Save logs (NF-style)
-    # ========================================================
+    # ===========
+    # Save logs
+    # ===========
     model_base = os.path.splitext(model_name)[0]
     log_path = os.path.join(save_dir, f"{model_base}_training_logs.npz")
 

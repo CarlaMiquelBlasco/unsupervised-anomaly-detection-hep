@@ -119,7 +119,9 @@ def to_tensor(df: pd.DataFrame, device: Optional[torch.device] = None) -> torch.
 
 
 def extract_masses_from_signal_origin(df, col="signalRegion"):
-    """Extract model (GG/SS), parent and LSP masses from signalOrigin strings."""
+    """
+    Extract model (GG/SS), parent and LSP masses from signalOrigin strings.
+    """
     pattern = r"^(GG|SS)_(\d+)_(\d+)"
     parsed = df[col].str.extract(pattern)
     df = df.copy()

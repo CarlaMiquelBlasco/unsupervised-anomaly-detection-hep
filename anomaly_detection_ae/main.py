@@ -122,7 +122,7 @@ valid_kin, valid_meta = split_kin_meta(valid, META_VARIABLES)
 test_kin, test_meta = split_kin_meta(test, META_VARIABLES)
 sgns_kin, sgns_meta = split_kin_meta(sgns, META_VARIABLES)
 
-# Detect integere, binary and categorical columns
+# Detect integer, binary and categorical columns
 integer_cols = [c for c in train_kin.columns if c.startswith(INTEGER_PATTERNS)]
 binary_cols = [c for c in train_kin.columns if c.startswith(BINARY_PATTERNS)]
 categorical_cols = [c for c in train_kin.columns if c.startswith(CATEGORICAL_PATTERNS)]
@@ -300,9 +300,9 @@ with torch.no_grad():
     mean_abs_error = abs_error.mean(dim=0).numpy()  # shape: (num_features,)
 
 
-    ## DEBUG: Print worst offenders ##
+    ## POST-ANALYSIS: Print worst offenders ##
     feature_names = list(train_kin.columns)
-    print("\n=== Top 10 worst reconstructed features ===")
+    print("\n=== [ANALYSIS]: Top 10 worst reconstructed features ===")
     for idx in mean_abs_error.argsort()[::-1][:10]:
         print(f"{feature_names[idx]:<30} | MAE = {mean_abs_error[idx]:.6f}")
 
@@ -366,6 +366,23 @@ if args.signal !="all":
                     use_weights=args.use_weights,
                     print_results=True
                 )
+    # Plotting kde for specific signal
+    plot_dir = f"/home/cblasco/thesis/anomaly_detection_ae/results/plots/{folder}"
+    os.makedirs(plot_dir, exist_ok=True)
+
+    # === KDE and density plots for this single signal ===
+    signal_tag = f"_{args.signal.replace('/', '_')}" if args.signal else ""
+    plotter.plot_anomaly_score_kde_and_hist_density_single_signal(
+        bkg_scores=test_df["L2"].values,
+        signal_scores=signal_df["L2"].values,
+        bkg_weights=test_df["totalweight"].values,
+        sig_weights=signal_df["totalweight"].values,
+        out_dir=plot_dir,
+        tag=signal_tag,
+        score_label="Anomaly score (L2 reconstruction loss)"
+    )
+    print(f"[INFO] Saved KDE and density hist plots for {args.signal}")
+
 else:    
     # ============================================================
     # Evaluate Asimov Z, AUROC/AUPRC, and tail metrics across all signals
@@ -398,7 +415,7 @@ else:
 
         asimov_thr = asimov_result["threshold"]
 
-        # ---------- Metrics Precision,Recall, f1, R, chi2 at Asimov threshold ----------
+        # ---------- Metrics Precision, Recall, f1, R, chi2 at Asimov threshold ----------
         asimov_thr_metrics = compute_metrics_at_threshold(
             test_bkg_df=test_df,
             signal_df=signal_df_region,
@@ -416,7 +433,7 @@ else:
             test_df, signal_df_region, score_col="L2", use_weights=args.use_weights
         )
 
-        # ---------- Save global metrics (independent of tail percentile) ----------
+        # ---------- Save global metrics (at 90% backg rejection) ----------
         global_results.append({
             "signalRegion": region,
             "model": model,
@@ -524,22 +541,5 @@ else:
 
         print("[INFO] AE exclusion plots generated successfully.")
 
-# Plotting
-plot_dir = f"/home/cblasco/thesis/anomaly_detection_ae/results/plots/{folder}"
-os.makedirs(plot_dir, exist_ok=True)
+print("Job complete.")
 
-# === KDE and density plots for this single signal ===
-signal_tag = f"_{args.signal.replace('/', '_')}" if args.signal else ""
-plotter.plot_anomaly_score_kde_and_hist_density_single_signal(
-    bkg_scores=test_df["L2"].values,
-    signal_scores=signal_df["L2"].values,
-    bkg_weights=test_df["totalweight"].values,
-    sig_weights=signal_df["totalweight"].values,
-    out_dir=plot_dir,
-    tag=signal_tag,
-    score_label="Anomaly score (L2 reconstruction loss)"
-)
-print(f"[INFO] Saved KDE and density hist plots for {args.signal}")
-
-
-print("Job complete. Results saved in:", plot_dir)

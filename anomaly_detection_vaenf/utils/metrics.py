@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt 
 from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, average_precision_score
 
 
@@ -234,7 +233,7 @@ def compute_AUEP(df, z_col="Z", m_parent_col="m_parent", m_LSP_col="m_LSP", thre
 
 def compute_metrics_at_threshold(test_bkg_df, signal_df, threshold, score_col="L2", wcol="totalweight", use_weights=True):
     """
-    Compute F1, Precision, Recall, R, and Chi² at a fixed threshold.
+    Compute F1, Precision, Recall, R, and Chi2 at a fixed threshold.
     """
     # Filter events with positive weights
     test_bkg_df = test_bkg_df[test_bkg_df[wcol] > 0]
@@ -270,7 +269,7 @@ def compute_metrics_at_threshold(test_bkg_df, signal_df, threshold, score_col="L
     n_bkg_tail = np.sum(bkg_weights[bkg_scores >= threshold])
     R = n_data_tail / n_bkg_tail if n_bkg_tail > 0 else np.inf
 
-    # --- Chi² between score distributions above threshold ---
+    # --- Chi2 between score distributions above threshold ---
     hist_range = (threshold, scores.max())
     data_hist, bin_edges = np.histogram(scores, bins=100, range=hist_range, weights=weights)
     bkg_hist, _ = np.histogram(bkg_scores, bins=100, range=hist_range, weights=bkg_weights)
@@ -357,7 +356,7 @@ def compute_tail_metrics(
     R = n_data_tail / n_bkg_tail if n_bkg_tail > 0 else np.inf
 
     # ======================================================
-    # 4) Chi² using score distribution above threshold
+    # 4) Chi2 using score distribution above threshold
     # ======================================================
     hist_range = (thr, scores.max())
     data_hist, bin_edges = np.histogram(scores, bins=bins, range=hist_range, weights=weights)

@@ -1,28 +1,12 @@
-# --------------------------------------------------------------
-#   PLOTTER FOR NORMALIZING FLOW (NF) MODELS
-#   Comparable to Autoencoder plotter + NF-specific diagnostics
-# --------------------------------------------------------------
-
 import matplotlib.pyplot as plt 
 import numpy as np 
-import pandas as pd 
 from sklearn.manifold import TSNE 
-import networkx as nx 
-import seaborn 
 import seaborn as sns
 import os 
-import matplotlib.ticker as ticker
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
-import os
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-from scipy.ndimage import gaussian_filter1d
-from scipy.ndimage import gaussian_filter
 from utils.metrics import asimov_Z
+import math
 
 
 # --------------------------------------------------------------
@@ -46,7 +30,7 @@ def weighted_quantile(values, quantile, weights):
     return np.interp(quantile, cdf, v)
 
 # --------------------------------------------------------------
-# 2. NF ANOMALY SCORE DISTRIBUTIONS (Comparable to AE)
+# 2. NF ANOMALY SCORE DISTRIBUTIONS
 # --------------------------------------------------------------
 
 def plot_nf_anomaly_score_kde(bkg_scores, sig_scores,
@@ -98,9 +82,6 @@ def plot_nf_anomaly_score_kde_by_class(
     KDE of anomaly scores, split by background physics class + signal.
     """
 
-    import numpy as np
-    import seaborn as sns
-    import matplotlib.pyplot as plt
 
     sns.set_context("paper")
 
@@ -175,7 +156,6 @@ def plot_nf_anomaly_hist(bkg_scores, sig_scores,
                          bins=100):
     """
     Weighted histogram of -log p(x).
-    Comparable to AE histogram.
     """
 
     bkg_scores = np.asarray(bkg_scores)
@@ -202,7 +182,7 @@ def plot_nf_anomaly_hist(bkg_scores, sig_scores,
         plt.close()
 
 # --------------------------------------------------------------
-# 3. ROC + PR CURVES (Comparable to AE)
+# 3. ROC + PR CURVES
 # --------------------------------------------------------------
 
 def plot_roc_curve(fpr, tpr, auc, out_path=None):
@@ -232,7 +212,7 @@ def plot_pr_curve(precision, recall, auprc, out_path=None):
         plt.close()
 
 # --------------------------------------------------------------
-# 4. ASIMOV SIGNIFICANCE & EXCLUSION PLOTS (Comparable to AE)
+# 4. ASIMOV SIGNIFICANCE & EXCLUSION PLOTS
 # --------------------------------------------------------------
 
 def plot_bg_survival_curve(bkg_scores, bkg_weights,
@@ -240,7 +220,6 @@ def plot_bg_survival_curve(bkg_scores, bkg_weights,
                            out_path=None, bins=400):
     """
     Plots 1 - CDF for background (survival curve).
-    Same plot used in AE workflow.
     """
 
     v, w = _mask_valid(bkg_scores, bkg_weights)
@@ -269,10 +248,7 @@ def plot_asimov_vs_bg(df_test, df_sig, score_col="score",
                       out_path=None):
     """
     Scans significance vs background survival.
-    Same as AE version but using NF scores.
     """
-
-    from utils.metrics import compute_asimov_significance
 
     v = df_test[score_col].to_numpy(float)
     w = df_test[wcol].to_numpy(float)
@@ -344,13 +320,6 @@ def plot_exclusion_plot(df, xcol="m_parent", ycol="m_LSP", zcol="Z",
     # ---------------------------------------------------------------------
     # === 2. Interpolate Z values onto the uniform grid ==================
     # ---------------------------------------------------------------------
-    # griddata() performs scattered-data interpolation.
-    # - (x, y): known coordinates (your discrete simulated signal mass points)
-    # - z: known values (Asimov significance at those points)
-    # - (Xi, Yi): target coordinates to interpolate onto
-    #
-    # method='cubic' → smooth interpolation (can slightly overshoot)
-    # fill_value=0   → assign 0 outside the convex hull (avoids NaNs at edges)
     Zi = griddata((x, y), z, (Xi, Yi), method="cubic", fill_value=0)
 
     # ---------------------------------------------------------------------
@@ -431,8 +400,8 @@ def plot_exclusion_plot(df, xcol="m_parent", ycol="m_LSP", zcol="Z",
 
 def plot_latent_distribution(z, out_path=None):
     """
-    NF should transform inputs into latent N(0,1).
     Plot histogram of z values (flattened).
+    NF should transform inputs into latent N(0,1).
     """
 
     z = np.asarray(z).reshape(-1)
@@ -451,10 +420,6 @@ def plot_latent_distribution_combined(z_bkg, z_sig, out_path=None):
     """
     Plot background vs signal latent distribution on the same axes.
     """
-
-    import numpy as np
-    import seaborn as sns
-    import matplotlib.pyplot as plt
 
     z_bkg = np.asarray(z_bkg).reshape(-1)
     z_sig = np.asarray(z_sig).reshape(-1)
@@ -516,10 +481,6 @@ def plot_tsne_latent_bkg_by_class(z, class_labels=None, out_path=None):
 
     """
 
-    import numpy as np
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    from sklearn.manifold import TSNE
 
     # ---------------------------------------
     # Remapping integer class → string label
@@ -589,10 +550,6 @@ def plot_tsne_latent_by_class_panels(
     """
     Multi-panel t-SNE scatterplot, one subplot per physics class.
     """
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from sklearn.manifold import TSNE
 
     class_map = {
         0:  "top quarks (ttbar + single-top)",
@@ -668,10 +625,6 @@ def plot_tsne_latent_bkg_by_class_downsampled(
     t-SNE of latent space with optional downsampling and improved visual clarity.
     """
 
-    import numpy as np
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    from sklearn.manifold import TSNE
 
     # ----------------------------
     # Class mapping
@@ -757,11 +710,6 @@ def plot_tsne_latent_density(
     Produces a 2x3 panel layout for physics classes.
     Colorbar is placed in a dedicated external axis.
     """
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from sklearn.manifold import TSNE
-    import math
 
     class_map = {
         0:  "top quarks (ttbar + single-top)",
@@ -883,9 +831,6 @@ def plot_nf_anomaly_score_kde_by_jet_features(
     split by (rounded) values of jet_n.
     """
 
-    import numpy as np
-    import seaborn as sns
-    import matplotlib.pyplot as plt
 
     sns.set_context("paper")
 
@@ -947,7 +892,8 @@ def plot_nf_anomaly_score_kde_by_jet_features(
 
 
 def plot_nf_training_performance(logfile, out_dir):
-    """Plot train/valid NLL, epoch time, LR schedule.
+    """
+    Plot train/valid NLL, epoch time, LR schedule.
 
     Robust to length mismatches (e.g., early stopping causing val_loss to have
     one fewer entry than epochs/train_loss).
@@ -962,9 +908,7 @@ def plot_nf_training_performance(logfile, out_dir):
 
     os.makedirs(out_dir, exist_ok=True)
 
-    # ------------------------------------------------------------
     # Align lengths safely (handles early-stopping log mismatches)
-    # ------------------------------------------------------------
     lengths = [len(epochs), len(train_loss), len(val_loss), len(epoch_time), len(lr)]
     n = min(lengths)
 

@@ -90,7 +90,7 @@ df = pd.read_csv(DEFAULTS.get("data_path", "/home/cblasco/thesis/data/2tau_full_
 # Separate signals and backgrounds
 sgns = df[df.signalOrigin != "-999"].reset_index(drop=True)
 bkgs = df[df.signalOrigin == "-999"].reset_index(drop=True)
-# Keep only GG_2000_1200 and SS_1400_645 for testing
+
 if args.signal != "all":    
     sgns = df[df.signalOrigin.isin([args.signal])].copy()
 
@@ -126,7 +126,7 @@ valid_kin, valid_meta = split_kin_meta(valid, META_VARIABLES)
 test_kin, test_meta = split_kin_meta(test, META_VARIABLES)
 sgns_kin, sgns_meta = split_kin_meta(sgns, META_VARIABLES)
 
-# Detect integere, binary and categorical columns
+# Detect integer, binary and categorical columns
 integer_cols = [c for c in train_kin.columns if c.startswith(INTEGER_PATTERNS)]
 binary_cols = [c for c in train_kin.columns if c.startswith(BINARY_PATTERNS)]
 categorical_cols = [c for c in train_kin.columns if c.startswith(CATEGORICAL_PATTERNS)]
@@ -208,14 +208,12 @@ print(f"\n[INFO] NF input dimension: {input_dim}")
 # --- Build model ---
 flow = build_flow(input_dim=input_dim, config=NF_CONFIG).to(DEVICE)
 
-#print(flow)
 
-#optimizer = torch.optim.Adam(flow.parameters(), lr=args.lr)
 optimizer = torch.optim.AdamW(
     flow.parameters(),
     lr=args.lr,
-    betas=(0.9, 0.99),    # slightly smoother momentum than default (0.999)
-    weight_decay=1e-4     # light regularization to prevent log-prob explosion
+    betas=(0.9, 0.99),   
+    weight_decay=1e-4   
 )
 
 if args.mode.lower() == "train":
@@ -276,7 +274,7 @@ elif args.mode.lower() == "eval":
     print("\n=== Training Performance Summary ===")
 
     # training logs stored next to checkpoint
-    model_base = os.path.splitext(args.model_name)[0]      # removes .pt
+    model_base = os.path.splitext(args.model_name)[0]    
     log_path = os.path.join(
         args.checkpoint,args.tag,
         f"{model_base}_training_logs.npz"
@@ -436,20 +434,13 @@ elif args.mode.lower() == "eval":
                 out_path=os.path.join(plot_dir, "NF_LatentDistribution.png")
             )
 
-            # 8_v2 Latent variable distribution separated bckgr vs signal (should look like N(0,1))
-            #plotter.plot_latent_distribution_combined(
-            #    z_bkg=z_bkg,
-            #    z_sig=z_sig,
-            #    out_path=os.path.join(plot_dir, "NF_LatentDistribution_bckg_vs_sign.png")
-            #)
-
 
             # 9. t-SNE of latent space (background vs signal)
             z_all = np.concatenate([z_bkg, z_sig])
 
             labels_all = np.concatenate([
-                class_bkg,                       # background classes
-                np.full(len(z_sig), 99)          # signal => labeled as 99
+                class_bkg,                   
+                np.full(len(z_sig), 99)       
             ])
 
             plotter.plot_tsne_latent_bkg_by_class_downsampled(
@@ -464,17 +455,7 @@ elif args.mode.lower() == "eval":
                 out_path=os.path.join(plot_dir, "NF_tSNE_bkgByClass_vs_sig_density.png"),
                 max_points=100000
             )
-            #plotter.plot_tsne_latent_by_class_panels(
-            #    z=z_all,
-            #    class_labels=labels_all,
-            #    out_path=os.path.join(plot_dir, "NF_tSNE_bkgByClass_vs_sig_separate.png")
-            #)
 
-            #plotter.plot_tsne_latent_bkg_by_class(
-            #    z=z_all,
-            #    class_labels=labels_all,
-            #    out_path=os.path.join(plot_dir, "NF_tSNE_bkgByClass_vs_sig.png")
-            #)
             plotter.plot_tsne_latent(
                 z=np.concatenate([z_bkg, z_sig]),
                 labels=labels_all,
@@ -554,7 +535,7 @@ elif args.mode.lower() == "eval":
                 if args.signal_plots == True:
                     print("\n=== Generating NF Plots for This Signal Region ===")
 
-                    # Directory: NF/plots/NF_<signalRegion>
+                    
                     plot_dir = os.path.join(PLOT_DIR, args.tag, args.model_name.split(".")[0], f"NF_{region}")
                     os.makedirs(plot_dir, exist_ok=True)
 
@@ -663,13 +644,6 @@ elif args.mode.lower() == "eval":
                         out_path=os.path.join(plot_dir, "NF_LatentDistribution.png")
                     )
 
-                    # 8_v2 Latent variable distribution separated bckgr vs signal (should look like N(0,1))
-                    #plotter.plot_latent_distribution_combined(
-                    #    z_bkg=z_bkg,
-                    #    z_sig=z_sig,
-                    #    out_path=os.path.join(plot_dir, "NF_LatentDistribution_bckg_vs_sign.png")
-                    #)
-
 
                     # 9. t-SNE of latent space (background vs signal)
                     z_all = np.concatenate([z_bkg, z_sig])
@@ -691,17 +665,6 @@ elif args.mode.lower() == "eval":
                         out_path=os.path.join(plot_dir, "NF_tSNE_bkgByClass_vs_sig_density.png"),
                         max_points=100000
                     )
-                    #plotter.plot_tsne_latent_by_class_panels(
-                    #    z=z_all,
-                    #    class_labels=labels_all,
-                    #    out_path=os.path.join(plot_dir, "NF_tSNE_bkgByClass_vs_sig_separate.png")
-                    #)
-
-                    #plotter.plot_tsne_latent_bkg_by_class(
-                    #    z=z_all,
-                    #    class_labels=labels_all,
-                    #    out_path=os.path.join(plot_dir, "NF_tSNE_bkgByClass_vs_sig.png")
-                    #)
                     plotter.plot_tsne_latent(
                         z=np.concatenate([z_bkg, z_sig]),
                         labels=labels_all,

@@ -5,19 +5,19 @@ import torch
 # ----------------------------
 
 DEFAULTS = {
-    "architecture": "standard",          # 'standard' or 'variational'
+    "architecture": "standard",   # 'standard' or 'variational'
     "latent_size": 25,
     "lr": 1e-3,
-    "epochs": 2,
+    "epochs": 300,
     "batch_size": 512,
-    "beta": 1e-5,                        # only used for VAE
-    "mode": "train",                    # 'train' or 'eval'
+    "beta": 1e-5,      # only used for VAE
+    "mode": "eval",  # 'train' or 'eval'
     "checkpoint": "/home/cblasco/thesis/anomaly_detection_ae/checkpoints/AE/best_model_ae.pt",
     "all_plots": False,
     "mix_loss": False,
     "only_cont": True,
     "use_weights": True,
-    "signal": "all"
+    "signal": "all"  # set to "all" or specific signal region
 }
 
 # ----------------------------

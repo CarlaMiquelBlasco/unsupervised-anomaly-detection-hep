@@ -1,13 +1,4 @@
 # --- scripts/NN_architecture.py ---
-"""
-Neural network architectures and training utilities for anomaly detection (AE/VAE).
-Includes:
-- Autoencoder and VariationalAutoencoder classes
-- Training loops for AE and VAE
-- Mixed loss computation
-- Checkpoint loading
-"""
-
 import torch
 import numpy as np
 import torch.nn as nn
@@ -123,7 +114,6 @@ def train_ae(autoencoder, train_loader, valid_loader, epochs, lr,
             optimizer.zero_grad()
 
             out = autoencoder(inputs)                     # <-- may be (reco, cat_logits) or reco
-            # pass tuple directly into mixed loss (it knows how to unpack)
             if mix_loss:
                 loss = mixed_recon_loss(out, inputs, continuous_idx, binary_idx,
                                         categorical_idx, weights, cat_targets)
@@ -358,8 +348,6 @@ def mixed_recon_loss(outputs_or_tuple, inputs, continuous_idx, binary_idx, categ
     return loss
 
 
-
-
 #Define the standard VAE loss which is MSE + beta * KL_div
 def variational_loss(outputs, inputs, mu, logvar, weights, beta):
 
@@ -464,7 +452,7 @@ def train_vae(variational_autoencoder, train_loader, valid_loader, epochs, lr, b
         if (epoch + 1) % 5 == 0:
             print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {mean_train_loss:.6f}, Valid Loss: {mean_valid_loss:.6f}")
 
-        #early stopping
+        # Early stopping
         if mean_valid_loss < best_valid_loss:
             best_valid_loss = mean_valid_loss
             best_model_state = variational_autoencoder.state_dict()
@@ -476,7 +464,7 @@ def train_vae(variational_autoencoder, train_loader, valid_loader, epochs, lr, b
             print(f"Early stopping triggered after {epoch + 1} epochs. Best validation loss: {best_valid_loss:.6f}")
             break
 
-    #return the best model for further use
+    # Return the best model for further use
     if best_model_state:
         variational_autoencoder.load_state_dict(best_model_state)
         print("Best model loaded.")

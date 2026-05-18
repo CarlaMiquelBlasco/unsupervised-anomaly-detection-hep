@@ -7,9 +7,9 @@ import seaborn
 import seaborn as sns
 import os 
 from scipy.ndimage import gaussian_filter1d
-import matplotlib.ticker as ticker
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
+
 
 #Create a graph display
 def visualize_graph(graph):
@@ -86,7 +86,7 @@ def density_comparison(df, folder, data_type="test", architecture="standard"):
 
         plt.subplot(num_rows, num_cols, i + 1)
 
-        valid_indices = df["totalweight"] > 0 #drops negative weights for the purposes of the KDE
+        valid_indices = df["totalweight"] > 0
         x_data = df.loc[valid_indices, variable]
         x_reco = df.loc[valid_indices, reco_variable]
         weights = df.loc[valid_indices, "totalweight"]
@@ -121,7 +121,7 @@ def density_comparison_graphs(data, folder, reco_data, node_index_dict, architec
     plt.figure(figsize = (12, 4 * num_rows))
     
     for i, variable in enumerate(node_labels):
-        idx = node_index_dict[variable] % 3 #hardocded lol
+        idx = node_index_dict[variable] % 3 
 
         plt.subplot(num_rows, num_cols, i +1)
 
@@ -135,7 +135,7 @@ def density_comparison_graphs(data, folder, reco_data, node_index_dict, architec
         plt.ylabel("Density")
         plt.legend()
 
-    #Common stuff
+    # Common
     if architecture == "graph_standard": plt.suptitle("Input vs Graph Autoencoder Output Distributions", fontsize = 16)
     elif architecture == "graph_variational" : plt.suptitle("Input vs Variational Graph Autoencoder Output Distributions", fontsize = 16)
     else: raise Exception("invalid architecture")
@@ -670,63 +670,6 @@ def plot_reco_loss_with_cut_lim01(bkg_df, sig_df, score_col="L2", wcol="totalwei
     plt.close()
     return thr
 
-def plot_bg_survival_with_cut(
-    bkg_df, *,
-    score_col="L2", wcol="totalweight",
-    bg_survival=0.10,               # fraction of BG to the right of the cut
-    threshold=None,                 # if None, computed from BG at 1 - bg_survival
-    out_path=None,
-    xlim_mode="percentile",         # "unit" | "percentile" | "auto"
-    pclip=99.0                      # xx-th percentile when xlim_mode="percentile"
-):
-    """
-    Plots the weighted BG survival curve (1-CDF) and the vertical cut.
-    Returns the threshold actually used.
-    """
-    v = bkg_df[score_col].to_numpy(float)
-    w = bkg_df[wcol].to_numpy(float)
-    m = np.isfinite(v) & np.isfinite(w) & (w > 0)
-    v, w = v[m], w[m]
-    if v.size == 0 or w.sum() <= 0:
-        raise ValueError("No valid BG entries to plot survival curve.")
-
-    # sort by score
-    order = np.argsort(v)
-    v, w = v[order], w[order]
-    surv = 1.0 - np.cumsum(w) / w.sum()
-
-    # compute threshold if not provided
-    if threshold is None:
-        threshold = _weighted_quantile(v, 1 - bg_survival, w)
-
-    # x-limits
-    if xlim_mode == "unit":
-        xmin, xmax = 0.0, 1.0
-    elif xlim_mode == "percentile":
-        xmin, xmax = float(v.min()), float(np.percentile(v, pclip))
-    elif xlim_mode == "auto":
-        xmin, xmax = float(v.min()), float(v.max())
-    else:
-        raise ValueError('xlim_mode must be "unit", "percentile", or "auto".')
-
-    plt.figure(figsize=(7, 4.5))
-    plt.plot(v, surv, label="Background survival", lw=2.4)
-    if np.isfinite(threshold):
-        plt.axvline(threshold, color="tab:red", ls="--", lw=2, label=f"Cut @ {threshold:.3f}")
-    plt.yscale("log")
-    plt.xlim(xmin, xmax)
-    plt.xlabel(score_col)
-    plt.ylabel("Fraction of background surviving")
-    plt.grid(alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    if out_path:
-        plt.savefig(out_path, dpi=150, bbox_inches="tight")
-        plt.close()
-    else:
-        plt.show()
-
-    return float(threshold)
 
 def reco_error_per_feature_mae(train_kin, mean_abs_error, out):
     feature_names = list(train_kin.columns)
@@ -804,9 +747,6 @@ def plot_anomaly_score_tail_distribution(
         plt.show()
 
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
 
 def plot_anomaly_score_kde(
     bkg_scores, signal_scores,
@@ -834,7 +774,7 @@ def plot_anomaly_score_kde(
 
     plt.figure(figsize=(8, 5))
 
-    # KDE plots with correct weighting (no forced normalization)
+    # KDE plots with correct weighting
     sns.kdeplot(
         x=bkg_scores, weights=bkg_weights, label='Background (KDE)',
         color='C0', clip=xlim, common_norm=False, multiple="layer"
@@ -859,48 +799,6 @@ def plot_anomaly_score_kde(
         plt.savefig(out_path)
     plt.close()
 
-
-
-def plot_asimov_vs_bg_survival(test_df, signal_df, score_col="L2", wcol="totalweight", n_points=30, out_path=None):
-    """
-    Scan background survival rates and compute Asimov significance curve.
-    """
-    bg_survivals = np.geomspace(0.001, 0.5, n_points)  # from 0.1% to 50%
-    Z_values = []
-    thresholds = []
-
-    v, w = np.asarray(test_df[score_col], float), np.asarray(test_df[wcol], float)
-    order = np.argsort(v)
-    v, w = v[order], w[order]
-    cdf = np.cumsum(w) / w.sum()
-
-    for surv in bg_survivals:
-        thr = np.interp(1 - surv, cdf, v)
-        b = float(((test_df[score_col] >= thr) * test_df[wcol]).sum())
-        s = float(((signal_df[score_col] >= thr) * signal_df[wcol]).sum())
-        Z_values.append(asimov_Z(s, b))
-        thresholds.append(thr)
-
-    # Plot
-    fig, ax1 = plt.subplots(figsize=(8,6))
-    ax1.plot(bg_survivals * 100, Z_values, marker='o', label=r"Asimov $Z_A$")
-    ax1.set_xlabel("Background survival rate (%)")
-    ax1.set_ylabel(r"Asimov significance $Z_A$")
-    ax1.set_xscale("log")
-    ax1.grid(True, which="both", ls="--", alpha=0.5)
-    ax1.legend()
-
-    if out_path:
-        plt.tight_layout()
-        plt.savefig(out_path, dpi=200)
-        print(f"Saved Asimov significance curve to {out_path}")
-    else:
-        plt.show()
-
-    # Also print best point
-    idx_best = np.argmax(Z_values)
-    print(f"Best significance: Z = {Z_values[idx_best]:.3f} at background survival = {bg_survivals[idx_best]*100:.2f}%")
-    print(f"Corresponding score threshold = {thresholds[idx_best]:.4f}")
 
     
 
@@ -1055,11 +953,6 @@ def plot_anomaly_score_kde_and_hist_density_single_signal(
         Number of histogram bins
     """
 
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import os
-
     os.makedirs(out_dir, exist_ok=True)
 
     # Flatten
@@ -1073,7 +966,7 @@ def plot_anomaly_score_kde_and_hist_density_single_signal(
     bins = np.histogram_bin_edges(all_scores, bins=bins)
     xlim = (np.percentile(all_scores, 0.1), np.percentile(all_scores, 99.5))
 
-    # 1️⃣ Weighted density histogram (area normalized)
+    # 1️Weighted density histogram (area normalized)
     plt.figure(figsize=(8,5))
     plt.hist(bkg_scores, bins=bins, weights=bkg_weights, density=True,
              alpha=0.5, label="Background", color="skyblue")
@@ -1087,7 +980,7 @@ def plot_anomaly_score_kde_and_hist_density_single_signal(
     plt.savefig(os.path.join(out_dir, f"ae_hist_density{tag}.png"), dpi=300)
     plt.close()
 
-    # 2️⃣ Weighted KDE (smooth)
+    # 2️Weighted KDE (smooth)
     plt.figure(figsize=(8,5))
     sns.kdeplot(x=bkg_scores, weights=bkg_weights,
                 label="Background", color="skyblue", fill=True, alpha=0.4, common_norm=False)
@@ -1101,9 +994,6 @@ def plot_anomaly_score_kde_and_hist_density_single_signal(
     plt.savefig(os.path.join(out_dir, f"ae_kde{tag}.png"), dpi=300)
     plt.close()
 
-
-import matplotlib.pyplot as plt
-import os
 
 def plot_losses(train_losses, valid_losses, folder, architecture):
     if train_losses is None or valid_losses is None:

@@ -8,7 +8,7 @@ DEFAULTS = {
     # ---- Training settings ----
 
     "lr": 0.0005692089192674849,
-    "epochs": 2,
+    "epochs": 300,
     "batch_size": 512,
     "early_stop_patience": 20,
 
@@ -21,7 +21,7 @@ DEFAULTS = {
     "n_trials": 30,
     "optuna_storage": "sqlite:////home/cblasco/thesis/anomaly_detection_vaenf/checkpoints/optuna_vae_nf.db",
     "optuna_study_name": "vae_nf_optuna",
-    "optuna_direction": "minimize",  # we will minimize val_loss
+    "optuna_direction": "minimize",  
     "optuna_seed": 42,
     "optuna_timeout": None,          # seconds or None
     "optuna_best_ckpt_dir": "/home/cblasco/thesis/anomaly_detection_vaenf/checkpoints/optuna_best",
@@ -89,7 +89,7 @@ VAE_CONFIG = {
     "latent_dim": 32,
     "encoder_hidden": [256, 128],
     "decoder_hidden": [256, 512],
-    "beta":  0.10023480191660546 #0.5#0.10023480191660546,  # beta-VAE weight
+    "beta":  0.10023480191660546  # beta-VAE weight
 }
 
 

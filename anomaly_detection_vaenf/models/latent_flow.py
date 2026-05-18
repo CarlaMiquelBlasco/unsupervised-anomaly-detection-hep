@@ -5,7 +5,7 @@ from nflows.nn.nets import ResidualNet
 
 def build_latent_flow(latent_dim, config):
     """
-    Build a normalizing flow model using parameters from config.py (NF_CONFIG).
+    Build a normalizing flow model using parameters from config.py.
     Supports: nsf_coupling, nsf_ar, maf.
     """
     flow_type = config["flow_type"]
@@ -77,7 +77,7 @@ def build_latent_flow(latent_dim, config):
             raise ValueError(f"Unknown flow_type: {flow_type}")
 
         transforms_list.append(transform) # builds a sequence of transformations that will be applied one after the other when we later combine them
-        transforms_list.append(transforms.RandomPermutation(features=latent_dim)) # we permute the order of features randomly to not froze/transformalways the same features
+        transforms_list.append(transforms.RandomPermutation(features=latent_dim)) # we permute the order of features randomly to not froze/transform always the same features
 
     #Up to here we have transforms_list = [Coupling, Permutation, Coupling, ..., Coupling, Permutation]
     final_transform = transforms.CompositeTransform(transforms_list) # utility in nflows that chains together multiple invertible transforms and keeps track of the forward/inverse pass and the Jacobian automatically

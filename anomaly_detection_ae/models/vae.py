@@ -1,8 +1,4 @@
 # --- models/vae.py ---
-"""
-Variational Autoencoder (VAE) implementation using reparameterization trick.
-"""
-
 import torch
 import torch.nn as nn
 

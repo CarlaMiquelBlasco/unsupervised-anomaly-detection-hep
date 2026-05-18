@@ -1,8 +1,4 @@
 # --- models/autoencoder.py ---
-"""
-Autoencoder architecture with optional categorical heads.
-"""
-
 import torch
 import torch.nn as nn
 

@@ -1,18 +1,12 @@
 # --- training/vae_trainer.py ---
-"""
-Training logic for Variational Autoencoder (VAE).
-Includes:
-- train_vae
-- variational_loss
-- kl_divergence
-"""
-
 import torch
 import torch.nn.functional as F
 import numpy as np
 
 def kl_divergence(mu, logvar):
-    """Compute batch-mean KL divergence between latent variables and unit Gaussian."""
+    """
+    Compute batch-mean KL divergence between latent variables and unit Gaussian.
+    """
     logvar = torch.clamp(logvar, min=-10, max=10)
     kl_div = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(), dim=1)
     return kl_div.mean()
