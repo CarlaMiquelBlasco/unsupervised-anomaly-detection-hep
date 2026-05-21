@@ -24,7 +24,7 @@ Trained model checkpoints and evaluation metrics are stored externally in OneDri
 
 They are available at the following link:
 
-[Trained models, metrics, and logs](https://hvl365-my.sharepoint.com/:f:/g/personal/189020_stud_hvl_no/IgChMz0YltXDRIBW1eORkHw-AWvqFFmkPjsJa1jb_rPWQVk?e=25aFRK)
+[Trained models, metrics, and logs](https://hvl365-my.sharepoint.com/:f:/r/personal/189020_stud_hvl_no/Documents/unsupervised-anomaly-detection-hep-artifacts?csf=1&web=1&e=LPxeZM)
 
 
 ## Repository structure
@@ -90,7 +90,7 @@ Each model directory is self-contained and can be executed independently. Most f
 * `utils/`: contains scripts for data preprocessing, metric computation, and other utility functions.
 * `visualizations/`: contains scripts for generating plots and visual outputs.
 
-The AE repository differs slightly from the NF and VAE-NF repositories because it was adapted from reused code. The main differences are that AE evaluation is handled in `main.py`, and the additional `scripts/` folder contains VAE-related code that is not used in the thesis experiments.
+The AE repository differs slightly from the NF and VAE-NF repositories because it was adapted from code implemented by previous master students and directly provided to us. The main differences are that AE evaluation is handled in `main.py`, and the additional `scripts/` folder contains VAE-related code that is not used in the thesis experiments. For the same reason, the `visualizations/plotter.py` file in the AE repository also contains additional plotting functions that are not used in the final experiments. These functions were kept in the repository in case they are useful for future extensions or further analyses.
 
 
 ## Installation and Running Steps

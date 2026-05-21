@@ -13,7 +13,6 @@ def save_full_checkpoint(model, optimizer, val_loss, save_path,
                          input_dim, args, best_epoch):
     """
     Save a full Normalizing Flow checkpoint, including architecture, optimizer, and normalization.
-    Mirrors the AE/VAE save structure.
     """
     checkpoint = {
         "model_type": nf_config["flow_type"],

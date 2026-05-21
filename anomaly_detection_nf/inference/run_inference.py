@@ -1,8 +1,4 @@
-# --- inference/run_inference_nf.py ---
 import torch
-import numpy as np
-from tqdm import tqdm
-import matplotlib.pyplot as plt
 
 def run_inference_nf(model, dataloader, device="cuda", return_numpy=True,
                      debug=False, plot_debug=False, label="dataset"):

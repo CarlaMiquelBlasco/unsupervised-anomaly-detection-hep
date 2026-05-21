@@ -1,7 +1,7 @@
 import os
 import torch
 import pandas as pd
-#from models.normalizing_flow import build_flow
+from models.normalizing_flow import build_flow
 
 
 def load_checkpoint(path, device="cpu"):

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 torch = __import__('torch')
 
-from typing import Optional, Union
+from typing import Optional
 
 def split_kin_meta(df: pd.DataFrame, meta_vars: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
     """

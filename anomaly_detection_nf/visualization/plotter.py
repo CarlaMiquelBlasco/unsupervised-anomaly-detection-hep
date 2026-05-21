@@ -1,8 +1,3 @@
-# --------------------------------------------------------------
-#   PLOTTER FOR NORMALIZING FLOW (NF) MODELS
-#   Comparable to Autoencoder plotter + NF-specific diagnostics
-# --------------------------------------------------------------
-
 import matplotlib.pyplot as plt 
 import numpy as np 
 import pandas as pd 
@@ -11,16 +6,7 @@ import networkx as nx
 import seaborn 
 import seaborn as sns
 import os 
-import matplotlib.ticker as ticker
 from scipy.interpolate import griddata
-from scipy.ndimage import gaussian_filter
-import os
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-from scipy.ndimage import gaussian_filter1d
 from scipy.ndimage import gaussian_filter
 from utils.metrics import asimov_Z
 
@@ -46,7 +32,7 @@ def weighted_quantile(values, quantile, weights):
     return np.interp(quantile, cdf, v)
 
 # --------------------------------------------------------------
-# 2. NF ANOMALY SCORE DISTRIBUTIONS (Comparable to AE)
+# 2. NF ANOMALY SCORE DISTRIBUTIONS
 # --------------------------------------------------------------
 
 def plot_nf_anomaly_score_kde(bkg_scores, sig_scores,
@@ -175,7 +161,6 @@ def plot_nf_anomaly_hist(bkg_scores, sig_scores,
                          bins=100):
     """
     Weighted histogram of -log p(x).
-    Comparable to AE histogram.
     """
 
     bkg_scores = np.asarray(bkg_scores)
@@ -202,7 +187,7 @@ def plot_nf_anomaly_hist(bkg_scores, sig_scores,
         plt.close()
 
 # --------------------------------------------------------------
-# 3. ROC + PR CURVES (Comparable to AE)
+# 3. ROC + PR CURVES
 # --------------------------------------------------------------
 
 def plot_roc_curve(fpr, tpr, auc, out_path=None):
@@ -232,7 +217,7 @@ def plot_pr_curve(precision, recall, auprc, out_path=None):
         plt.close()
 
 # --------------------------------------------------------------
-# 4. ASIMOV SIGNIFICANCE & EXCLUSION PLOTS (Comparable to AE)
+# 4. ASIMOV SIGNIFICANCE & EXCLUSION PLOTS
 # --------------------------------------------------------------
 
 def plot_bg_survival_curve(bkg_scores, bkg_weights,
@@ -240,7 +225,6 @@ def plot_bg_survival_curve(bkg_scores, bkg_weights,
                            out_path=None, bins=400):
     """
     Plots 1 - CDF for background (survival curve).
-    Same plot used in AE workflow.
     """
 
     v, w = _mask_valid(bkg_scores, bkg_weights)
@@ -269,10 +253,7 @@ def plot_asimov_vs_bg(df_test, df_sig, score_col="score",
                       out_path=None):
     """
     Scans significance vs background survival.
-    Same as AE version but using NF scores.
     """
-
-    from utils.metrics import compute_asimov_significance
 
     v = df_test[score_col].to_numpy(float)
     w = df_test[wcol].to_numpy(float)
@@ -397,7 +378,7 @@ def plot_exclusion_plot(df, xcol="m_parent", ycol="m_LSP", zcol="Z",
                    extent=[xi.min(), xi.max(), yi.min(), yi.max()],
                    cmap="Reds", alpha=0.8, aspect="auto")
 
-    # Overlay contour line showing where Z_A = threshold (e.g. black curve marking boundary)
+    # Overlay contour line showing where Z_A = threshold
     axes[1].contour(Xi, Yi, Zi_smooth, levels=[threshold], colors="black", linewidths=1)
 
     # Label and style
@@ -426,7 +407,7 @@ def plot_exclusion_plot(df, xcol="m_parent", ycol="m_LSP", zcol="Z",
 
 
 # --------------------------------------------------------------
-# 5. LATENT SPACE VISUALIZATION (NF-specific)
+# 5. LATENT SPACE VISUALIZATION
 # --------------------------------------------------------------
 
 def plot_latent_distribution(z, out_path=None):
@@ -451,10 +432,6 @@ def plot_latent_distribution_combined(z_bkg, z_sig, out_path=None):
     """
     Plot background vs signal latent distribution on the same axes.
     """
-
-    import numpy as np
-    import seaborn as sns
-    import matplotlib.pyplot as plt
 
     z_bkg = np.asarray(z_bkg).reshape(-1)
     z_sig = np.asarray(z_sig).reshape(-1)
@@ -865,7 +842,7 @@ def plot_tsne_latent_density(
 
 
 # --------------------------------------------------------------
-# 6. JACOBIAN LOG-DET DISTRIBUTION (NF-specific)
+# 6. JACOBIAN LOG-DET DISTRIBUTION
 # --------------------------------------------------------------
 
 def plot_logdet_distribution_bkg_vs_sig(logdet_bkg, logdet_sig, out_path=None):

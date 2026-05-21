@@ -10,7 +10,6 @@ from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, av
 def compute_auroc(bg_df, signal_df, score_col="L2", wcol="totalweight", use_weights=True):
     """
     Compute AUROC between background and signal samples.
-
     If `use_weights` is True, use totalweight for weighting the metric.
     """
 
@@ -41,7 +40,6 @@ def compute_auroc(bg_df, signal_df, score_col="L2", wcol="totalweight", use_weig
 def compute_auprc(bg_df, signal_df, score_col="L2", wcol="totalweight", use_weights=True):
     """
     Compute AUPRC between background and signal samples.
-
     If `use_weights` is True, use totalweight for weighting the metric.
     """
 
@@ -237,16 +235,6 @@ def compute_AUEP(df, z_col="Z", m_parent_col="m_parent", m_LSP_col="m_LSP", thre
 
 
 def plot_asimov_heatmap(df, folder, title=f"Asimov Significance (Z>2.0)"):
-    """
-    Same logic/structure as  original function, but adapted to your main.py outputs:
-      - sig_type  <- df['model']
-      - x         <- df['m_parent']
-      - y         <- df['m_LSP']
-      - z         <- df['Z']
-    Everything else (grid step=10, cubic griddata, fill_value=0, threshold=2.0, smoothing, levels, save path)
-    is kept as similar as possible.
-    """
-
     sig_type = df['model'].iloc[0] if 'model' in df.columns else ""
     x = df['m_parent'].values
     y = df['m_LSP'].values
@@ -297,7 +285,7 @@ def plot_asimov_heatmap(df, folder, title=f"Asimov Significance (Z>2.0)"):
 
     ax.set_title(f"{sig_type} {title}", fontsize=14)
 
-    # Keep the same SUSY-style labels; map model name to SS vs GG like your pipeline
+    # Keep the same SUSY-style labels
     ax.set_xlabel(r"$m_{\tilde{q}}$ [GeV]", fontsize=14) if sig_type == "SS" else ax.set_xlabel(r"$m_{\tilde{g}}$ [GeV]", fontsize=14)
     ax.set_ylabel(r"$m_{\tilde{\chi}_1^0}$ [GeV]", fontsize=14)
 

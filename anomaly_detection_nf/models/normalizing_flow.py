@@ -1,4 +1,3 @@
-# --- models/normalizing_flow.py ---
 import torch
 import torch.nn as nn
 from nflows import transforms, distributions, flows
